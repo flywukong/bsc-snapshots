@@ -10,11 +10,6 @@ Ancient Data Prune is a new feature in [bsc v1.1.8](https://github.com/bnb-chain
 
 Multi-database is a new feature in [bsc v1.4.6](https://github.com/bnb-chain/bsc/releases/tag/v1.4.6)
 If user run with the new snapshot of multi-database below, the feature will be enabled automatically.
-The Chaindata of the snapshot will be divided into three stores, BlockStore, TrieStore, and OriginalStore.
-The original database is located within the chaindata/ folder, and new block/ and state/ folders have been introduced to store block and trie data. Additionally, there is an ancient folder for storing historical data under each of these directories.
-If you want to store different databases on different disks, you can move the folder corresponding to TrieStore or BlockStore to a different directory and create a symbolic link with the same name as the folder using an absolute path in the chaindata directory. 
-For example: ln -s <new-dir> /server/chaindata/state
-
 
 ### Endpoint
 
@@ -52,7 +47,6 @@ Special thanks to [BNB48Club](https://twitter.com/bnb48club) on contributing ano
 
 ### Usage
 
-#### snapshot with sigle dataBase
 Step 1: Preparation
 - Make sure your hardware meets the [suggested requirement](https://docs.bnbchain.org/docs/validator/fullnode).
 - A disk with enough free storage, at least twice the size of the snapshot.
@@ -129,8 +123,23 @@ Step 3: Replace Data
 - Replace the data: `mv server/data-seed/geth/chaindata ${BSC_DataDir}/geth/chaindata; mv server/data-seed/geth/triecache ${BSC_DataDir}/geth/triecache`
 - Start the bsc client again and check the logs
 
+#### Snapshot with multi-database
 
+The Chaindata of the snapshot will be divided into three stores, BlockStore, TrieStore, and OriginalStore.
 
+Block Database: Block-related data is stored in this store, including headers, bodies, receipts, difficulties, number-to-hash indexes, hash-to-number indexes, and historical block data.
+
+Trie Database: All trie nodes of the current state and historical state data of nearly 9w blocks are stored here.
+
+Original Database: The remaining data will be stored in this store, including snapshot, txIndex, contract code, and other metadata, etc.
+
+The original database is located within the chaindata/ folder, and new block/ and state/ folders have been introduced to store block and trie data. Additionally, there is an ancient folder for storing historical data under each of these directories.
+If you want to store different databases on different disks, you can move the folder corresponding to TrieStore or BlockStore to a different directory and create a symbolic link with the same name as the folder using an absolute path in the chaindata directory.
+For example:
+```
+mv ${BSC_DataDir}/geth//chaindata/state <move-directory>
+ln -s <move-directory>  ${BSC_DataDir}/geth/chaindata/state
+```
 ## Erigon-BSC Snapshot(Archive Node)
 
 > For more granular upload & download to avoid big files error, split the files into several chunks, so please download them together and concatenate finally.
